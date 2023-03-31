@@ -91,9 +91,9 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": env("DATABASE_NAME"),
-        "USER": env("DATABASE_USER"),
-        "PASSWORD": env("DATABASE_PASSWORD"),
+        "NAME": env("MYSQL_DATABASE"),
+        "USER": env("MYSQL_USER"),
+        "PASSWORD": env("MYSQL_PASSWORD"),
         "HOST": env("DATABASE_HOST"),
         "PORT": env("DATABASE_PORT"),
         "OPTIONS": {"charset": "utf8mb4"},

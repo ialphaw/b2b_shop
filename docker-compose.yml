@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  db:
+    image: mysql:latest
+    volumes:
+      - mysql_data:/var/lib/mysql/
+    ports:
+      - "3307:3306"
+    env_file:
+      ./core/.env
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'mysql -u $$MYSQL_USER -p$$MYSQL_PASSWORD -e use $$MYSQL_DATABASE'"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    restart: always
+  backend:
+    build: .
+    command: bash -c "export environment=docker.env && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8001:8000"
+    env_file:
+      ./core/.env
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always
+
+volumes:
+    mysql_data:
