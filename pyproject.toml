@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "b2b-shop"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+packages = [{include = "b2b_shop"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+django = "^4.1.7"
+djangorestframework = "^3.14.0"
+ipython = "^8.12.0"
+django-extensions = "^3.2.1"
+python-dotenv = "^1.0.0"
+environs = "^9.5.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
