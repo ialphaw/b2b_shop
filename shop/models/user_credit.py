@@ -14,7 +14,7 @@ class UserCredit(models.Model):
 
     def make_transaction(self, category):
         """Create a transaction for the user credit."""
-        
+
         Transaction.objects.create(
             user=self.user,
             amount=self.credit,
@@ -30,8 +30,8 @@ class UserCredit(models.Model):
             original_user_credit = UserCredit.objects.get(pk=self.pk)
             if original_user_credit.credit != self.credit:
                 if original_user_credit.credit < self.credit:
-                    self.make_transaction("i")
+                    self.make_transaction(Transaction.INCREASE)
                 else:
-                    self.make_transaction("d")
+                    self.make_transaction(Transaction.DECREASE)
 
         super().save(*args, **kwargs)

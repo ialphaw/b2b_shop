@@ -35,12 +35,12 @@ class UserCreditViewSet(viewsets.ModelViewSet):
             credit = data["credit"]
         except KeyError as e:
             print(str(e))
-            return exceptions.ValidationError(
+            raise exceptions.ValidationError(
                 detail="Bad Json", code=status.HTTP_400_BAD_REQUEST
             )
 
         instance, created = UserCredit.objects.get_or_create(user__username=username)
-        instance.credit = instance.credit + credit
+        instance.credit = instance.credit + float(credit)
         instance.save(update_fields=["credit"])
 
         return Response({"message": "Credit increased successfully"})
