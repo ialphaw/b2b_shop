@@ -14,9 +14,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, re_path
+from django.urls import path, re_path, include
 
 from rest_framework.authtoken import views
+
+from shop.urls import url_urlpatterns as shop_urlpatterns
 
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -31,7 +33,12 @@ schema_view = get_schema_view(
     public=True,
 )
 
+api_v1_urlpatters = [
+    path("shop/", include(shop_urlpatterns)),
+]
+
 urlpatterns = [
+    path("api/v1/", include(api_v1_urlpatters)),
     path("admin/", admin.site.urls),
     re_path(
         r"^swagger(?P<format>\.json|\.yaml)$",
