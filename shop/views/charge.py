@@ -1,3 +1,5 @@
+from django.db import transaction
+
 from rest_framework import viewsets, permissions, status, exceptions
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -36,20 +38,21 @@ class ChargeViewSet(viewsets.ModelViewSet):
         user = request.user
 
         try:
-            user_credit = UserCredit.objects.get(user=user)
+            with transaction.atomic():
+                user_credit = UserCredit.objects.select_for_update().get(user=user)
+
+                if user_credit.credit < charge.amount:
+                    raise exceptions.ValidationError(
+                        detail="You do not have the required credit",
+                        code=status.HTTP_400_BAD_REQUEST,
+                    )
+
+                user_credit.credit = user_credit.credit - charge.amount
+                user_credit.save(update_fields=["credit"])
         except UserCredit.DoesNotExist:
             raise exceptions.ValidationError(
                 detail="There is no credit for this user",
                 code=status.HTTP_400_BAD_REQUEST,
             )
-
-        if user_credit.credit < charge.amount:
-            raise exceptions.ValidationError(
-                detail="You do not have the required credit",
-                code=status.HTTP_400_BAD_REQUEST,
-            )
-
-        user_credit.credit = user_credit.credit - charge.amount
-        user_credit.save(update_fields=["credit"])
 
         return Response({"message": "Your purchase has been done successfully"})
