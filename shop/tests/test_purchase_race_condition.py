@@ -28,12 +28,14 @@ class ChargeViewSetTestCase(LiveServerTestCase):
         self.assertEqual(
             Transaction.objects.filter(user=self.user, category="d").count(), 100
         )
+        self.user_credit.refresh_from_db()
+        self.assertEqual(self.user_credit.credit, 0)
 
     def send_purchase_request(self):
         self.client.force_login(self.user)
         data = {"charge_amount": 10}
         response = self.client.post(
-            f"/api/v1/shop/user_credit/{self.user}/purchase/",
+            f"/api/v1/shop/user_credit/{self.user_credit.id}/purchase/",
             data,
             content_type="application/json",
         )

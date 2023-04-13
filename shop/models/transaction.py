@@ -29,20 +29,19 @@ class Transaction(models.Model):
         return f"{self.user} - {self.amount} - {self.get_category_display()}"
 
     def save(self, *args, **kwargs):
-        with transaction.atomic():
-            user_credit = UserCredit.objects.select_for_update().get(user=self.user)
+        user_credit = UserCredit.objects.get(user=self.user)
 
-            if self.category == "d":
-                if user_credit.credit < self.amount:
-                    raise ValidationError(
-                        "You do not have the required credit",
-                        code="invalid",
-                    )
+        if self.category == "d":
+            if user_credit.credit < self.amount:
+                raise ValidationError(
+                    "You do not have the required credit",
+                    code="invalid",
+                )
 
-                user_credit.credit = user_credit.credit - self.amount
-            else:
-                user_credit.credit = user_credit.credit + self.amount
+            user_credit.credit -= self.amount
+        else:
+            user_credit.credit += self.amount
 
-            user_credit.save(update_fields=["credit"])
+        user_credit.save(update_fields=["credit"])
 
         super().save(*args, **kwargs)
