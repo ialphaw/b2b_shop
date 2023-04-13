@@ -1,3 +1,4 @@
+import json
 from concurrent.futures import ThreadPoolExecutor
 
 from django.contrib.auth.models import User
@@ -31,13 +32,12 @@ class ChargeViewSetTestCase(LiveServerTestCase):
 
     def send_purchase_request(self):
         self.client.force_login(self.user)
-        data = {"charge_amount": 10}
+        data = json.dumps({"charge_amount": 10})
         response = self.client.post(
-            f"/api/v1/shop/user_credit/{self.user}/purchase/",
+            f"/api/v1/shop/user_credit/{self.user_credit.id}/purchase/",
             data,
             content_type="application/json",
         )
-
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.json(), {"message": "Your purchase has been done successfully"}
