@@ -7,6 +7,7 @@ from rest_framework.decorators import action
 from shop.models import UserCredit
 from shop.serializers import UserCreditSerializer
 from shop.helpers import make_transaction
+from shop.exceptions import BalanceInsufficient
 
 
 class UserCreditViewSet(viewsets.ModelViewSet):
@@ -64,10 +65,7 @@ class UserCreditViewSet(viewsets.ModelViewSet):
 
         try:
             make_transaction("d", charge_amount, user)
-        except ValidationError:
-            raise exceptions.ValidationError(
-                detail="You do not have the required credit",
-                code=status.HTTP_400_BAD_REQUEST,
-            )
+        except BalanceInsufficient:
+            raise BalanceInsufficient
 
         return Response({"message": "Your purchase has been done successfully"})

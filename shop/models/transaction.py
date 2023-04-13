@@ -1,7 +1,7 @@
 from django.db import models, transaction
-from django.core.exceptions import ValidationError
 
 from shop.models import UserCredit
+from shop.exceptions import BalanceInsufficient
 
 
 class Transaction(models.Model):
@@ -34,10 +34,7 @@ class Transaction(models.Model):
 
             if self.category == "d":
                 if user_credit.credit < self.amount:
-                    raise ValidationError(
-                        "You do not have the required credit",
-                        code="invalid",
-                    )
+                    raise BalanceInsufficient
 
                 user_credit.credit = user_credit.credit - self.amount
             else:
