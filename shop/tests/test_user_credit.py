@@ -31,14 +31,14 @@ class UserCreditViewSetTestCase(APITestCase):
         # Verify that only the user's own credits are returned
         self.assertEqual(len(response.data["results"]), 1)
         self.assertEqual(response.data["results"][0]["user"]["username"], "user1")
-        self.assertEqual(response.data["results"][0]["credit"], 100.00)
+        self.assertEqual(response.data["results"][0]["credit"], "100.00")
 
     def test_increase_credit_as_admin(self):
         # Authenticate as an admin
         self.client.force_authenticate(user=self.admin)
 
         # Make POST request to the increase_credit endpoint
-        data = {"username": "user1", "credit": 50.0}
+        data = {"username": "user1", "credit": 50}
         response = self.client.post("/api/v1/shop/user_credit/increase_credit/", data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

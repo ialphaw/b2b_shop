@@ -12,7 +12,7 @@ class ChargeViewSetTestCase(LiveServerTestCase):
         self.staff_user = User.objects.create_user(
             username="staffuser", password="staffpass", is_staff=True
         )
-        self.charge = Charge.objects.create(name="Test Charge", amount=10)
+        # self.charge = Charge.objects.create(name="Test Charge", amount=10)
         self.user_credit = UserCredit.objects.create(user=self.user, credit=1000.0)
 
     def test_purchase_race_condition(self):
@@ -31,9 +31,9 @@ class ChargeViewSetTestCase(LiveServerTestCase):
 
     def send_purchase_request(self):
         self.client.force_login(self.user)
-        data = {"id": self.charge.id}
+        data = {"charge_amount": 10}
         response = self.client.post(
-            f"/api/v1/shop/charge/{self.charge.id}/purchase/",
+            f"/api/v1/shop/user_credit/{self.user}/purchase/",
             data,
             content_type="application/json",
         )

@@ -29,30 +29,3 @@ class ChargeViewSet(viewsets.ModelViewSet):
             )
 
         return super().create(request, *args, **kwargs)
-
-    @action(detail=True, methods=["POST"])
-    def purchase(self, request, pk=None):
-        """Purchase a charge"""
-
-        charge = self.get_object()
-        user = request.user
-
-        try:
-            with transaction.atomic():
-                user_credit = UserCredit.objects.select_for_update().get(user=user)
-
-                if user_credit.credit < charge.amount:
-                    raise exceptions.ValidationError(
-                        detail="You do not have the required credit",
-                        code=status.HTTP_400_BAD_REQUEST,
-                    )
-
-                user_credit.credit = user_credit.credit - charge.amount
-                user_credit.save(update_fields=["credit"])
-        except UserCredit.DoesNotExist:
-            raise exceptions.ValidationError(
-                detail="There is no credit for this user",
-                code=status.HTTP_400_BAD_REQUEST,
-            )
-
-        return Response({"message": "Your purchase has been done successfully"})

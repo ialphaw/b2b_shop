@@ -1,9 +1,12 @@
+from django.core.exceptions import ValidationError
+
 from rest_framework import viewsets, permissions, status, exceptions
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
 from shop.models import UserCredit
 from shop.serializers import UserCreditSerializer
+from shop.helpers import make_transaction
 
 
 class UserCreditViewSet(viewsets.ModelViewSet):
@@ -40,7 +43,31 @@ class UserCreditViewSet(viewsets.ModelViewSet):
             )
 
         instance, created = UserCredit.objects.get_or_create(user__username=username)
-        instance.credit = instance.credit + float(credit)
-        instance.save(update_fields=["credit"])
+
+        make_transaction("i", credit, instance.user)
 
         return Response({"message": "Credit increased successfully"})
+
+    @action(detail=True, methods=["POST"])
+    def purchase(self, request, pk=None):
+        """Purchase a charge"""
+
+        user = request.user
+
+        try:
+            charge_amount = int(request.data["charge_amount"])
+        except KeyError as e:
+            print(str(e))
+            raise exceptions.ValidationError(
+                detial="Bad Json", code=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            make_transaction("d", charge_amount, user)
+        except ValidationError:
+            raise exceptions.ValidationError(
+                detail="You do not have the required credit",
+                code=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return Response({"message": "Your purchase has been done successfully"})
